@@ -3,7 +3,6 @@ import requests
 
 BASE_URL = 'http://api.openweathermap.org/data/2.5/weather?'
 API_KEY = open('api_key', 'r').read()
-CITY = "Ontario"
 
 
 def kelvin_to_celsius_fahrenheit(kelvin):
@@ -25,12 +24,28 @@ def mps_to_mph(mps):
     :return: the value of mps * 2.237
     """
     return mps * 2.237
+    
+def get_response():
+    """
+    It will keep asking the user for a city until the user enters a valid city
+    :return: A tuple containing the response and the city.
+    """
+    while True:
+        city = input("Please enter a city.\n")
+
+        url = BASE_URL + 'appid=' + API_KEY + '&q=' + city
+        response =  requests.get(url).json()
+
+        if 'main' in response:
+            return response, response['name']
+        else:
+            print("City not found. \n")
+
 
 def main():
 
-    # This is creating a URL that will be used to make a request to the OpenWeatherMap API. The
-    url = BASE_URL + 'appid=' + API_KEY + '&q=' + CITY
-    response = requests.get(url).json()
+    response, city = get_response()
+    print("\n")
 
     # unpack the response
     main = response['main']
@@ -49,13 +64,13 @@ def main():
     sunrise_time = dt.datetime.utcfromtimestamp(sys['sunrise'] + timezone)
     sunset_time = dt.datetime.utcfromtimestamp(sys['sunset'] + timezone)
 
-    print(f"Temperature in {CITY}: {temp_celsius:.0f}C or {temp_fahrenheit:.0f}F")
-    print(f"Temperature in {CITY} feels like: {feels_like_celsius:.0f}C or {feels_like_fahrenheit:.0f}F")
-    print(f"Humidity in {CITY}: {humidity}%")
-    print(f"Wind Speed in {CITY}: {mps_to_mph(wind_speed):.1f}mph")
-    print(f"General Weather in {CITY}: {description}")
-    print(f"Sun Rises in {CITY} at {sunrise_time} local time.")
-    print(f"Sun Sets in {CITY} at {sunset_time} local time.")
+    print(f"Temperature in {city}: {temp_celsius:.0f}C or {temp_fahrenheit:.0f}F")
+    print(f"Temperature in {city} feels like: {feels_like_celsius:.0f}C or {feels_like_fahrenheit:.0f}F")
+    print(f"Humidity in {city}: {humidity}%")
+    print(f"Wind Speed in {city}: {mps_to_mph(wind_speed):.1f}mph")
+    print(f"General Weather in {city}: {description}")
+    print(f"Sun Rises in {city} at {sunrise_time} local time.")
+    print(f"Sun Sets in {city} at {sunset_time} local time.")
 
 if __name__ == "__main__":
     main()
