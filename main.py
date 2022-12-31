@@ -37,13 +37,17 @@ def get_response():
     """
     while True:
         g = geocoder.ip('me')
-        city = g.city
+        location = {
+            'city' : g.city,
+            'state' : g.state,
+            'country' : g.country
+        }
 
-        url = BASE_URL + 'appid=' + API_KEY + '&q=' + city
+        url = BASE_URL + 'appid=' + API_KEY + '&q=' + location['city']
         response =  requests.get(url).json()
 
         if 'main' in response:
-            return response, response['name']
+            return response, location
         elif response['message']:
             error_message = f"Error: {response['message']}"
             raise error_message
@@ -55,13 +59,15 @@ def get_response():
 def main():
     # TODO: implement weather icon from res.weather.icon
 
-    response, city = get_response()
+    response, location = get_response()
 
     temp_celsius, temp_fahrenheit = kelvin_to_celsius_fahrenheit(response['main']['temp'])
     feels_like_celsius, feels_like_fahrenheit = kelvin_to_celsius_fahrenheit(response['main']['feels_like'])
 
     data = {
-        'city': city,
+        'city': location['city'],
+        'state': location['state'],
+        'country': location['country'],
         'timezone': response['timezone'],
         'temp_celsius': temp_celsius,
         'temp_fahrenheit': temp_fahrenheit,
