@@ -44,34 +44,34 @@ def get_response():
 
         if 'main' in response:
             return response, response['name']
+        elif response['message']:
+            error_message = f"Error: {response['message']}"
+            raise error_message
         else:
             raise "City not found. \n"
 
 
 @app.route("/")
 def main():
+    # TODO: implement weather icon from res.weather.icon
 
     response, city = get_response()
 
-    temp_celsius, temp_fahrenheit = kelvin_to_celsius_fahrenheit(response['temp_kelvin'])
-    feels_like_celsius, feels_like_fahrenheit = kelvin_to_celsius_fahrenheit(response['feels_like_kelvin'])
+    temp_celsius, temp_fahrenheit = kelvin_to_celsius_fahrenheit(response['main']['temp'])
+    feels_like_celsius, feels_like_fahrenheit = kelvin_to_celsius_fahrenheit(response['main']['feels_like'])
 
     data = {
-        'main': response['main'],
         'city': city,
-        'weather': response['weather'][0],
-        'sys': response['sys'],
         'timezone': response['timezone'],
-        'wind': response['wind'],
         'temp_celsius': temp_celsius,
         'temp_fahrenheit': temp_fahrenheit,
         'feels_like_celsius': feels_like_celsius,
         'feels_like_fahrenheit': feels_like_fahrenheit,
         'temp_kelvin': response['main']['temp'],
-        'feels_like_kelvin': main['feels_like'],
+        'feels_like_kelvin': response['main']['feels_like'],
         'wind_speed': response['wind']['speed'],
         'humidity': response['main']['humidity'],
-        'description': response['weather']['description'],
+        'description': response['weather'][0]['description'],
         'sunrise_time': dt.datetime.utcfromtimestamp(response['sys']['sunrise'] + response['timezone']),
         'sunset_time': dt.datetime.utcfromtimestamp(response['sys']['sunset'] + response['timezone']),
     }
@@ -80,4 +80,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    app.run()
