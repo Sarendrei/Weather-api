@@ -1,10 +1,12 @@
 import datetime as dt
-from flask import jsonify
+from flask import Flask, jsonify
 import requests
+import geocoder
 
 BASE_URL = 'http://api.openweathermap.org/data/2.5/weather?'
 API_KEY = open('api_key', 'r').read()
-
+app = Flask(__name__)
+api_key = ''
 
 def kelvin_to_celsius_fahrenheit(kelvin):
     """
@@ -34,7 +36,8 @@ def get_response():
     :return: A tuple containing the response and the city.
     """
     while True:
-        city = input("Please enter a city.\n")
+        g = geocoder.ip('me')
+        city = g.city
 
         url = BASE_URL + 'appid=' + API_KEY + '&q=' + city
         response =  requests.get(url).json()
@@ -45,6 +48,7 @@ def get_response():
             raise "City not found. \n"
 
 
+@app.route("/")
 def main():
 
     response, city = get_response()
