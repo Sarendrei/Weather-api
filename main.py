@@ -5,8 +5,8 @@ import geocoder
 
 BASE_URL = 'http://api.openweathermap.org/data/2.5/weather?'
 API_KEY = open('api_key', 'r').read()
+
 app = Flask(__name__)
-api_key = ''
 
 def kelvin_to_celsius_fahrenheit(kelvin):
     """
