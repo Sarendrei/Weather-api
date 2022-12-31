@@ -1,5 +1,6 @@
 import datetime as dt
 from flask import Flask, jsonify
+from flask_cors import CORS
 import requests
 import geocoder
 
@@ -7,6 +8,7 @@ BASE_URL = 'http://api.openweathermap.org/data/2.5/weather?'
 API_KEY = open('api_key', 'r').read()
 
 app = Flask(__name__)
+CORS(app, origins=['http://localhost:4200'])
 
 def kelvin_to_celsius_fahrenheit(kelvin):
     """
