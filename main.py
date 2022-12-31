@@ -1,4 +1,5 @@
 import datetime as dt
+from flask import jsonify
 import requests
 
 BASE_URL = 'http://api.openweathermap.org/data/2.5/weather?'
@@ -16,6 +17,7 @@ def kelvin_to_celsius_fahrenheit(kelvin):
     fahrenheit = celsius * (9/5) + 32
     return celsius, fahrenheit
 
+
 def mps_to_mph(mps):
     """
     > This function takes a speed in meters per second and returns the speed in miles per hour
@@ -25,6 +27,7 @@ def mps_to_mph(mps):
     """
     return mps * 2.237
     
+
 def get_response():
     """
     It will keep asking the user for a city until the user enters a valid city
@@ -39,38 +42,38 @@ def get_response():
         if 'main' in response:
             return response, response['name']
         else:
-            print("City not found. \n")
+            raise "City not found. \n"
 
 
 def main():
 
     response, city = get_response()
-    print("\n")
 
-    # unpack the response
-    main = response['main']
-    weather = response['weather'][0]
-    sys = response['sys']
-    timezone = response['timezone']
-    wind = response['wind']
+    temp_celsius, temp_fahrenheit = kelvin_to_celsius_fahrenheit(response['temp_kelvin'])
+    feels_like_celsius, feels_like_fahrenheit = kelvin_to_celsius_fahrenheit(response['feels_like_kelvin'])
 
-    temp_kelvin = main['temp']
-    temp_celsius, temp_fahrenheit = kelvin_to_celsius_fahrenheit(temp_kelvin)
-    feels_like_kelvin = main['feels_like']
-    feels_like_celsius, feels_like_fahrenheit = kelvin_to_celsius_fahrenheit(feels_like_kelvin)
-    wind_speed = wind['speed']
-    humidity = main['humidity']
-    description = weather['description']
-    sunrise_time = dt.datetime.utcfromtimestamp(sys['sunrise'] + timezone)
-    sunset_time = dt.datetime.utcfromtimestamp(sys['sunset'] + timezone)
+    data = {
+        'main': response['main'],
+        'city': city,
+        'weather': response['weather'][0],
+        'sys': response['sys'],
+        'timezone': response['timezone'],
+        'wind': response['wind'],
+        'temp_celsius': temp_celsius,
+        'temp_fahrenheit': temp_fahrenheit,
+        'feels_like_celsius': feels_like_celsius,
+        'feels_like_fahrenheit': feels_like_fahrenheit,
+        'temp_kelvin': response['main']['temp'],
+        'feels_like_kelvin': main['feels_like'],
+        'wind_speed': response['wind']['speed'],
+        'humidity': response['main']['humidity'],
+        'description': response['weather']['description'],
+        'sunrise_time': dt.datetime.utcfromtimestamp(response['sys']['sunrise'] + response['timezone']),
+        'sunset_time': dt.datetime.utcfromtimestamp(response['sys']['sunset'] + response['timezone']),
+    }
 
-    print(f"Temperature in {city}: {temp_celsius:.0f}C or {temp_fahrenheit:.0f}F")
-    print(f"Temperature in {city} feels like: {feels_like_celsius:.0f}C or {feels_like_fahrenheit:.0f}F")
-    print(f"Humidity in {city}: {humidity}%")
-    print(f"Wind Speed in {city}: {mps_to_mph(wind_speed):.1f}mph")
-    print(f"General Weather in {city}: {description}")
-    print(f"Sun Rises in {city} at {sunrise_time} local time.")
-    print(f"Sun Sets in {city} at {sunset_time} local time.")
+    return jsonify(data)
+
 
 if __name__ == "__main__":
     main()
